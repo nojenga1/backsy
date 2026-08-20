@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>How it works — Backsy</title>
+<meta name="description" content="How reversible transfers work in Backsy."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../styles.css"/>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/" aria-label="Backsy">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">backsy</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="/#features">Features</a>
+      <a class="nav-link" href="/how-it-works/">How it works</a>
+      <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/support/">Support</a>
+    </nav>
+    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+  </div>
+</header>
+
+<main class="doc">
+  <p class="eyebrow"><span></span>How it works</p>
+  <h1>Money that stays yours until it's claimed.</h1>
+  <p class="lead">Every wallet shares one flaw: a single wrong character in an address and the money is gone for good. Backsy changes what "sent" means, so a mistake becomes something you can take back.</p>
+
+  <h2>Two ways to send</h2>
+  <p>Before a transfer you pick who you're paying:</p>
+  <ul>
+    <li><strong>Protected</strong> — for someone you don't know yet. The money moves into an escrow that only you can recover, and the recipient collects it with a link. Until they do, one tap brings it home.</li>
+    <li><strong>Direct</strong> — for someone you already trust. Straight into their wallet, instant and final, exactly like any other wallet.</li>
+  </ul>
+
+  <h2>The life of a protected transfer</h2>
+  <ol>
+    <li>You send. The funds leave your spendable balance and sit in a one-time escrow.</li>
+    <li>The recipient gets a claim link. When they open it, the money moves to them and the transfer becomes final.</li>
+    <li>Changed your mind first? Cancel it and the full amount returns to your balance immediately.</li>
+    <li>Nobody claimed it? After 7 days the transfer returns to you on its own — no action needed.</li>
+  </ol>
+
+  <div class="callout">
+    <p>A transfer is only ever in one of four states: <strong>pending</strong>, <strong>claimed</strong>, <strong>cancelled</strong>, or <strong>expired</strong>. Once it leaves <em>pending</em> it can never go back — that's what stops the same money being spent twice.</p>
+  </div>
+
+  <h2>What the recipient sees</h2>
+  <p>A claim link works in any browser. The recipient doesn't need an account before you send — they can set one up when they claim. If they never do, nothing is lost, because the money was never really theirs yet.</p>
+
+  <h2>Your balance, honestly labelled</h2>
+  <p>Backsy splits your balance into <strong>spendable</strong> and <strong>in flight</strong>. In-flight money is money you've sent but can still recover. It is shown separately so you always know what you can actually spend right now.</p>
+
+  <h2>Which networks</h2>
+  <p>The current prototype runs on a simulated ledger and does not touch a real chain. Solana is the first target for the on-chain version, since escrow accounts there are cheap enough for everyday amounts.</p>
+
+  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand" aria-label="Backsy">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-word">backsy</span>
+      </div>
+      <div class="footer-col"><h4>Product</h4><ul><li><a href="/how-it-works/">How it works</a></li><li><a href="/security/">Security</a></li></ul></div>
+      <div class="footer-col"><h4>Resources</h4><ul><li><a href="/developers/">Developers</a></li><li><a href="/how-it-works/">Claim links</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a href="/support/">Support</a></li><li><a href="/privacy/">Privacy Policy</a></li></ul></div>
+      <div class="footer-col"><h4>Socials</h4><ul><li><a href="#">X (Twitter)</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© Backsy 2026</span>
+      <div class="footer-legal"><a href="/privacy/">Privacy</a></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>How it’s built — Backsy</title>
+<meta name="description" content="The whole Backsy prototype: one Python file, standard library, SQLite."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../styles.css"/>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/" aria-label="Backsy">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">backsy</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="/#features">Features</a>
+      <a class="nav-link" href="/how-it-works/">How it works</a>
+      <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/support/">Support</a>
+    </nav>
+    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+  </div>
+</header>
+
+<main class="doc">
+  <p class="eyebrow"><span></span>Developers</p>
+  <h1>How it's built.</h1>
+  <p class="lead">Backsy is deliberately small. The whole prototype is one Python file on the standard library plus SQLite — no framework, no package manager, nothing to install.</p>
+
+  <h2>The whole stack</h2>
+  <ul>
+    <li><code>http.server</code> for routing and static delivery</li>
+    <li><code>sqlite3</code> for accounts and transfers</li>
+    <li><code>secrets</code> for claim tokens</li>
+    <li>One HTML page, no build step, no bundler</li>
+  </ul>
+  <p>Run it with <code>python app.py</code>. There is no dependency file because there are no dependencies.</p>
+
+  <h2>Data model</h2>
+  <p>Two tables. <code>accounts</code> holds a name and a balance. <code>transfers</code> holds a token, sender, recipient, amount, status, and the two timestamps that define the hold window. A transfer's status is one of <code>pending</code>, <code>claimed</code>, <code>cancelled</code>, <code>expired</code>.</p>
+
+  <h2>The reversible mechanism</h2>
+  <p>Sending debits the sender inside <code>BEGIN IMMEDIATE</code> with a conditional update, so an insufficient balance matches zero rows and the whole send rolls back. Settling a transfer updates it <em>only</em> while it is still pending; the second of two racing claims matches nothing and pays out nothing. That single <code>WHERE status='pending'</code> is the entire concurrency story.</p>
+
+  <h2>Expiry without a scheduler</h2>
+  <p>Overdue transfers are swept at the start of each request rather than by a cron job. At prototype volume the scan is free, and it removes a moving part. It is marked in the source as the first thing to replace if transfer volume grows.</p>
+
+  <h2>API</h2>
+  <ul>
+    <li><code>GET /api/state?user=</code> — balance, in-flight total, sent and incoming lists</li>
+    <li><code>POST /api/send</code> — <code>{user, to, amount}</code>, returns a claim token</li>
+    <li><code>POST /api/claim</code> — <code>{user, token}</code></li>
+    <li><code>POST /api/cancel</code> — <code>{user, token}</code>, sender only</li>
+    <li><code>GET /c/&lt;token&gt;</code> — the claim page</li>
+  </ul>
+
+  <h2>Tests</h2>
+  <p><code>python app.py --test</code> runs a self-check covering double claims, cancel-after-claim, cancellation by a non-sender, overdraft, expiry, and a closing invariant that the total of every balance plus everything in escrow never changes.</p>
+
+  <h2>What is real, and what isn't</h2>
+  <p>Real: the state machine, the concurrency guards, the claim links, the expiry. Not real: the chain. There is no on-chain program, no wallet, no key management. The escrow is a row in SQLite that the server agrees to honour.</p>
+
+  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand" aria-label="Backsy">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-word">backsy</span>
+      </div>
+      <div class="footer-col"><h4>Product</h4><ul><li><a href="/how-it-works/">How it works</a></li><li><a href="/security/">Security</a></li></ul></div>
+      <div class="footer-col"><h4>Resources</h4><ul><li><a href="/developers/">Developers</a></li><li><a href="/how-it-works/">Claim links</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a href="/support/">Support</a></li><li><a href="/privacy/">Privacy Policy</a></li></ul></div>
+      <div class="footer-col"><h4>Socials</h4><ul><li><a href="#">X (Twitter)</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© Backsy 2026</span>
+      <div class="footer-legal"><a href="/privacy/">Privacy</a></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Backsy: the wallet with reversible transfers</title>
+<meta name="description" content="Send it. Change your mind. Get it back — until they claim."/>
+<meta property="og:title" content="Backsy: the wallet with reversible transfers"/>
+<meta property="og:description" content="Send it. Change your mind. Get it back — until they claim."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/" aria-label="Backsy">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">backsy</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="#features">Features</a>
+      <a class="nav-link" href="/how-it-works/">How it works</a>
+      <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/support/">Support</a>
+    </nav>
+    <div class="nav-right">
+      <a class="nav-x" href="#" aria-label="Backsy on X">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Z"/></svg>
+      </a>
+      <a class="btn-download" href="/download/">Download</a>
+      <button class="nav-burger" id="burger" aria-label="Menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#features">Features</a>
+  <a href="/how-it-works/">How it works</a>
+  <a href="/security/">Security</a>
+  <a href="/developers/">Developers</a>
+  <a href="/support/">Support</a>
+</nav>
+
+<main>
+<span id="features"></span>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-card">
+      <div class="hero-fx" aria-hidden="true">
+        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+        <span class="boom"></span>
+      </div>
+      <div class="hero-content">
+        <p class="hero-eyebrow"><span class="eb-rule"></span>The wallet with reversible transfers</p>
+        <h1 class="hero-title">
+          <span>Send it.</span>
+          <span>Change your mind.</span>
+          <span><em>Get it back.</em></span>
+        </h1>
+        <p class="hero-sub">Your money waits in escrow instead of landing in someone else's wallet. Until they claim it, one tap brings it home.</p>
+        <div class="hero-cta">
+          <a class="btn-pill-light" href="/download/">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M10 19H14M9 22H15C16.657 22 18 20.657 18 19V5C18 3.343 16.657 2 15 2H9C7.343 2 6 3.343 6 5V19C6 20.657 7.343 22 9 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Download Backsy
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 1 — SENDING ===================== -->
+<section class="feature">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Transfers you can<br>pull
+        <svg class="ghost-inline" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><polyline points="3 3.6 3 10 9.4 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        back</h2>
+      <a class="see-more" href="/how-it-works/">See how it works
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 15V6M18 6H9M18 6L6.25 17.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="cat-row reveal">
+      <span class="cat-label">Sending</span>
+      <div class="cat-dots">
+        <button class="cat-arrow" data-dir="-1" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="cat-arrow" data-dir="1" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+    <div class="carousel reveal">
+
+      <a class="card accent" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Send any amount. It stays yours until someone claims it.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="lbl">Outgoing transfer</div>
+            <div class="big">3.5 SOL</div>
+            <div class="row" style="margin-top:12px">
+              <span class="chip live"><span class="dot"></span>Reversible</span>
+              <span class="lbl">$589.40 held</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a class="card dark" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Share a claim link. They redeem whenever they're ready.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="lbl">Claim link</div>
+            <div class="row" style="margin-top:8px">
+              <span class="mono">backsy.cc/c/8kQm2vN</span>
+              <span class="chip done">Copy</span>
+            </div>
+          </div>
+          <div class="row">
+            <span class="chip live"><span class="dot"></span>Awaiting claim</span>
+            <span class="lbl">sent 2m ago</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card grey" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Cancel while it's pending and the money is back instantly.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="row"><span class="lbl">to 7xKX…KyWz</span><span class="chip good">Recovered</span></div>
+            <div class="big" style="margin-top:6px">+ 3.5 SOL</div>
+          </div>
+          <div class="btn-mock warn">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 3-6.7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><polyline points="3 3.6 3 10 9.4 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Cancel &amp; recover
+          </div>
+        </div>
+      </a>
+
+      <a class="card deep" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Every transfer ships with an undo button.</p></div>
+        <div class="card-art">
+          <div class="undo">
+            <svg viewBox="0 0 260 104" fill="none" aria-hidden="true">
+              <path d="M16 82C48 30 108 14 150 40" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 7"/>
+              <path d="M150 40C196 68 210 46 214 32" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              <polyline points="200 28 214 30 210 44" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="16" cy="82" r="6" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <a class="card dark" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Watch every pending transfer in one place.</p></div>
+        <div class="card-art">
+          <div class="list">
+            <div class="it"><span class="nm">to 7xKX…KyWz</span><span class="amt">3.5 SOL</span></div>
+            <div class="it"><span class="nm">to 9WzD…5m2Q</span><span class="amt">250 USDC</span></div>
+            <div class="it"><span class="nm">to FvMx…wxbD</span><span class="amt">1.2 SOL</span></div>
+          </div>
+          <div class="row">
+            <span class="chip live"><span class="dot"></span>3 reversible</span>
+            <span class="lbl">$4,760 recoverable</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 2 — YOUR MONEY ===================== -->
+<section class="feature">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">In flight,<br>not gone</h2>
+      <a class="see-more" href="/how-it-works/">See more
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 15V6M18 6H9M18 6L6.25 17.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="cat-row reveal">
+      <span class="cat-label">Your money</span>
+      <div class="cat-dots">
+        <button class="cat-arrow" data-dir="-1" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="cat-arrow" data-dir="1" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+    <div class="carousel reveal">
+
+      <a class="card soft" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Spendable and in-flight, in a single balance.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="lbl">Total</div>
+            <div class="big">$9,437.22</div>
+          </div>
+          <div class="list">
+            <div class="it"><span class="nm">Spendable</span><span class="amt">$8,847.82</span></div>
+            <div class="it"><span class="nm">In flight · recoverable</span><span class="amt">$589.40</span></div>
+          </div>
+        </div>
+      </a>
+
+      <a class="card deep" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Sending takes seconds. So does undoing it.</p></div>
+        <div class="card-art">
+          <div class="undo">
+            <svg viewBox="0 0 260 104" fill="none" aria-hidden="true">
+              <path d="M16 82C48 30 108 14 150 40" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 7"/>
+              <path d="M150 40C196 68 210 46 214 32" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              <polyline points="200 28 214 30 210 44" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="16" cy="82" r="6" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="row">
+            <span class="chip done">Sent</span>
+            <span class="chip good">Recovered</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card accent" href="/how-it-works/">
+        <div class="card-body"><p class="card-cap">Claim what's waiting for you with a single tap.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="row">
+              <div>
+                <div class="lbl">Incoming from 9WzD…5m2Q</div>
+                <div class="big">250 USDC</div>
+              </div>
+              <span class="chip live"><span class="dot"></span>Ready</span>
+            </div>
+          </div>
+          <div class="btn-mock">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Claim
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 3 — SECURITY ===================== -->
+<section class="feature">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Yours until<br>they claim it</h2>
+      <a class="see-more" href="/security/">See more
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 15V6M18 6H9M18 6L6.25 17.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="cat-row reveal">
+      <span class="cat-label">Security</span>
+      <div class="cat-dots">
+        <button class="cat-arrow" data-dir="-1" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="cat-arrow" data-dir="1" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+    <div class="carousel reveal">
+
+      <a class="card pale" href="/security/">
+        <div class="card-body"><p class="card-cap">Self-custodial escrow. Only you can cancel your transfer.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="lbl">Escrow</div>
+            <div class="big">Only you hold the key</div>
+            <div class="row" style="margin-top:12px">
+              <span class="chip done">Backsy</span>
+              <span class="lbl">no custody, no access</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a class="card grey" href="/security/">
+        <div class="card-body"><p class="card-cap">Reversible until claimed. Final the second it is.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="row">
+              <span class="chip live"><span class="dot"></span>Reversible</span>
+              <span class="chip done">Final</span>
+            </div>
+            <div class="lbl" style="margin-top:11px">Ownership moves the instant they claim.</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="card soft" href="/security/">
+        <div class="card-body"><p class="card-cap">A mistyped address stops being a permanent mistake.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="lbl">Recipient</div>
+            <div class="mono addr" style="margin-top:7px">7xKXtg2C<i>W</i>87d97TX…KyWz</div>
+            <div class="row" style="margin-top:12px">
+              <span class="chip good">Cancelled</span>
+              <span class="lbl">funds returned</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a class="card dark" href="/security/">
+        <div class="card-body"><p class="card-cap">Never claimed? Your funds come back on their own.</p></div>
+        <div class="card-art">
+          <div class="ui">
+            <div class="ring-wrap">
+              <div class="ring">
+                <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="30" stroke="rgba(255,255,255,.18)" stroke-width="7" fill="none"/><circle cx="36" cy="36" r="30" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="188" stroke-dashoffset="56"/></svg>
+                <b>7d</b>
+              </div>
+              <div class="lbl">Unclaimed transfers auto-return to your balance.</div>
+            </div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta">
+  <div class="wrap">
+    <p class="cta-eyebrow reveal">For everyone who has ever hit send a second too early.</p>
+    <h2 class="cta-title reveal">The undo button crypto forgot to ship.</h2>
+    <div class="cta-card reveal">
+      <p class="cta-card-title">Get started.<br>Download Backsy.</p>
+      <a class="btn-pill-light" href="/download/">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M10 19H14M9 22H15C16.657 22 18 20.657 18 19V5C18 3.343 16.657 2 15 2H9C7.343 2 6 3.343 6 5V19C6 20.657 7.343 22 9 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Download Backsy
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LEGAL ===================== -->
+<section class="legal">
+  <div class="wrap">
+    <p>Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed, and no real funds move. Screens and figures shown on this page are illustrative and are not records of real transactions.</p>
+    <p>Backsy is an independent project. It is not affiliated with, endorsed by, or connected to any other wallet, exchange, or financial service.</p>
+  </div>
+</section>
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand" aria-label="Backsy">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-word">backsy</span>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul><li><a href="/how-it-works/">How it works</a></li><li><a href="/security/">Security</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul><li><a href="/developers/">Developers</a></li><li><a href="/how-it-works/">Claim links</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul><li><a href="/support/">Support</a></li><li><a href="/privacy/">Privacy Policy</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Socials</h4>
+        <ul><li><a href="#">X (Twitter)</a></li></ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© Backsy 2026</span>
+      <div class="footer-legal"><a href="/privacy/">Privacy</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== COOKIE BANNER ===================== -->
+<div class="cookie hide" id="cookie">
+  <p>We use essential cookies only. See our <a href="/privacy/">cookie policy</a> for how we handle your data.</p>
+  <div class="cookie-btns">
+    <button class="cookie-reject" data-cookie="reject">Reject</button>
+    <button class="cookie-accept" data-cookie="accept">Accept</button>
+  </div>
+</div>
+
+<script>
+// Reveal on scroll.
+var io = new IntersectionObserver(function (es) {
+  es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(function (e) { io.observe(e); });
+
+// Carousel arrows drive native scroll-snap; no slider library.
+document.querySelectorAll('.cat-arrow').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var rail = b.closest('.wrap').querySelector('.carousel');
+    var card = rail.querySelector('.card');
+    rail.scrollBy({ left: (card.offsetWidth + 18) * +b.dataset.dir, behavior: 'smooth' });
+  });
+});
+
+// Mobile menu.
+var burger = document.getElementById('burger'), menu = document.getElementById('mobileMenu');
+burger.addEventListener('click', function () {
+  var open = menu.classList.toggle('open');
+  burger.setAttribute('aria-expanded', open);
+});
+
+// Cookie banner: stays hidden once a choice is stored.
+var box = document.getElementById('cookie');
+if (!localStorage.cookieChoice) box.classList.remove('hide');
+box.querySelectorAll('[data-cookie]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    localStorage.cookieChoice = b.dataset.cookie;
+    box.classList.add('hide');
+  });
+});
+</script>
+</body>
+</html>

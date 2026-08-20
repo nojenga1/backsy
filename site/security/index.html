@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Security — Backsy</title>
+<meta name="description" content="What protects a Backsy transfer, and what does not exist yet."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="../styles.css"/>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/" aria-label="Backsy">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">backsy</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="/#features">Features</a>
+      <a class="nav-link" href="/how-it-works/">How it works</a>
+      <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/developers/">Developers</a>
+      <a class="nav-link" href="/support/">Support</a>
+    </nav>
+    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+  </div>
+</header>
+
+<main class="doc">
+  <p class="eyebrow"><span></span>Security</p>
+  <h1>Control stays on your side.</h1>
+  <p class="lead">A reversible transfer is only worth anything if nobody but you can reverse it. This page explains what protects a transfer today, and — just as importantly — what does not yet exist.</p>
+
+  <h2>Only the sender can cancel</h2>
+  <p>Cancelling is checked on the server against the transfer's own sender, not against whoever clicked the button. A recipient who has your claim link still cannot pull a transfer back to themselves, and neither can a stranger who guesses a link.</p>
+
+  <h2>A transfer settles exactly once</h2>
+  <p>Claiming and cancelling both operate on a transfer that is still <code>pending</code>, inside a single database transaction. If two claims arrive at the same instant, the first one wins and the second finds nothing left to settle. The same guard makes a double refund impossible.</p>
+
+  <h2>Balances cannot go negative</h2>
+  <p>Money leaves your balance the moment you send, using a conditional write that simply fails if the funds are not there. Two simultaneous sends cannot overdraw the same account between them.</p>
+
+  <h2>Claim links are unguessable</h2>
+  <p>Every claim link carries 128 bits of cryptographic randomness. Treat the link itself as the credential: anyone holding it can claim that transfer, so send it over a channel you trust.</p>
+
+  <h2>Unclaimed money comes home</h2>
+  <p>A transfer nobody collects is not stranded. After 7 days it returns to the sender automatically, so a wrong or abandoned link costs you the wait and nothing else.</p>
+
+  <div class="callout">
+    <p><strong>Being honest about the risks.</strong> This prototype is not self-custodial, holds no keys, and has not been audited. Balances live in an ordinary database on the server, and the escrow is simulated rather than enforced by a smart contract. Do not put real money behind it in its current form.</p>
+  </div>
+
+  <h2>What real custody would require</h2>
+  <p>Making these guarantees hold without trusting a server means moving the escrow on-chain: a program that holds funds in a per-transfer account, releases them against the claim secret, and lets only the original sender withdraw early. Until that program is deployed and audited, the protection described above is a product promise, not a cryptographic one.</p>
+
+  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand" aria-label="Backsy">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-word">backsy</span>
+      </div>
+      <div class="footer-col"><h4>Product</h4><ul><li><a href="/how-it-works/">How it works</a></li><li><a href="/security/">Security</a></li></ul></div>
+      <div class="footer-col"><h4>Resources</h4><ul><li><a href="/developers/">Developers</a></li><li><a href="/how-it-works/">Claim links</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a href="/support/">Support</a></li><li><a href="/privacy/">Privacy Policy</a></li></ul></div>
+      <div class="footer-col"><h4>Socials</h4><ul><li><a href="#">X (Twitter)</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© Backsy 2026</span>
+      <div class="footer-legal"><a href="/privacy/">Privacy</a></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

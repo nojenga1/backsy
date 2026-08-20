@@ -1,0 +1,6 @@
+backsy.db
+*.db
+__pycache__/
+*.pyc
+*.log
+.env

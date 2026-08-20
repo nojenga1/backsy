@@ -1,0 +1,2 @@
+# No dependencies -- Backsy runs on the Python standard library.
+# This file exists so the build system detects a Python project.

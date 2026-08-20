@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "Backsy",
+  "version": "0.1.0",
+  "description": "Send now. Take it back until it's claimed.",
+  "action": { "default_popup": "popup.html", "default_title": "Backsy" },
+  "host_permissions": ["http://localhost:8000/*"]
+}
