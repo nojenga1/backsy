@@ -38,7 +38,7 @@ describe("backsy", () => {
    * unix_timestamp to slots, so it does not track wall time -- sleeping for
    * the hold window is not enough, and was why the expiry tests failed.
    */
-  async function waitForChainTime(target: number, timeoutMs = 90000) {
+  async function waitForChainTime(target: number, timeoutMs = 150000) {
     const startedAt = Date.now();
     let last = 0;
     while (Date.now() - startedAt < timeoutMs) {
@@ -242,7 +242,7 @@ describe("backsy", () => {
   });
 
   it("lets anyone return an expired transfer, and only to the sender", async () => {
-    const claim = await create(2);
+    const claim = await create(1);
     const anyone = Keypair.generate();
     const sig = await provider.connection.requestAirdrop(
       anyone.publicKey,
@@ -270,7 +270,7 @@ describe("backsy", () => {
   });
 
   it("refuses to claim an expired transfer", async () => {
-    const claim = await create(2);
+    const claim = await create(1);
     const dest = Keypair.generate();
     const acct = await program.account.transfer.fetch(pda(claim.publicKey));
     await waitForChainTime(acct.expiresAt.toNumber());

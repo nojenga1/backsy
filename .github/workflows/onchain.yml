@@ -105,10 +105,25 @@ jobs:
           chmod +x /usr/local/bin/surfpool
           surfpool --version
 
+      # Left to itself surfpool advanced its clock about one second per real
+      # minute, so a 2-second hold could not be outlived. Short slots make the
+      # chain clock move at a usable rate; --ci keeps it headless.
+      - name: Start surfpool
+        run: |
+          surfpool start --ci --slot-time 50 > /tmp/surfpool.log 2>&1 &
+          for i in $(seq 1 90); do
+            solana cluster-version >/dev/null 2>&1 && { echo "validator up after ${i}s"; break; }
+            sleep 1
+          done
+          solana cluster-version || {
+            echo "::error::surfpool: $(tail -c 1200 /tmp/surfpool.log | tr '[:space:]' ' ')"
+            exit 1
+          }
+
       - name: Test against a local validator
         run: |
           set -o pipefail
-          anchor test --skip-build 2>&1 | tee /tmp/step.log || {
+          anchor test --skip-build --skip-local-validator 2>&1 | tee /tmp/step.log || {
             echo "::error::test: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
