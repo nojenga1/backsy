@@ -38,7 +38,7 @@ describe("backsy", () => {
    * unix_timestamp to slots, so it does not track wall time -- sleeping for
    * the hold window is not enough, and was why the expiry tests failed.
    */
-  async function waitForChainTime(target: number, timeoutMs = 60000) {
+  async function waitForChainTime(target: number, timeoutMs = 90000) {
     const startedAt = Date.now();
     let last = 0;
     while (Date.now() - startedAt < timeoutMs) {
@@ -53,14 +53,20 @@ describe("backsy", () => {
         if (now >= target) return now;
       }
       // The validator only advances its clock when it produces a block, and it
-      // produces blocks when there is something to process. Poking it with an
-      // airdrop keeps time moving instead of stalling on the deadline.
+      // produces blocks when there is something to process. An unconfirmed
+      // airdrop was not enough -- the clock stalled a second short of the
+      // deadline -- so wait for the poke to actually land in a block.
       try {
-        await provider.connection.requestAirdrop(Keypair.generate().publicKey, 1000);
+        const sig = await provider.connection.requestAirdrop(
+          Keypair.generate().publicKey,
+          1000
+        );
+        const bh = await provider.connection.getLatestBlockhash();
+        await provider.connection.confirmTransaction({ signature: sig, ...bh });
       } catch {
         /* the poke is best-effort */
       }
-      await sleep(1000);
+      await sleep(500);
     }
     throw new Error(
       `chain clock never reached ${target} (last saw ${last}) within ${timeoutMs}ms`
