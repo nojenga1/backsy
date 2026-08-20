@@ -11,6 +11,8 @@ import http.server, json, mimetypes, os, secrets, sqlite3, time, urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.normpath(os.path.join(HERE, "site"))
 DB = os.environ.get("BACKSY_DB", os.path.join(HERE, "backsy.db"))
+DB_FROM_ENV = "BACKSY_DB" in os.environ
+STARTED = time.time()
 HOLD_SECONDS = 7 * 24 * 3600
 START_BALANCE = 1000.0
 
@@ -272,6 +274,16 @@ class H(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = urllib.parse.urlparse(self.path)
+        if p.path == "/api/health":
+            # Diagnostics for the deploy: is the database on the mounted volume,
+            # and is this a different process than the last time you looked?
+            return self.reply(200, json.dumps({
+                "started": STARTED,
+                "db": DB,
+                "db_from_env": DB_FROM_ENV,
+                "db_exists": os.path.isfile(DB),
+                "db_bytes": os.path.getsize(DB) if os.path.isfile(DB) else 0,
+            }))
         if p.path == "/api/state":
             user = (urllib.parse.parse_qs(p.query).get("user") or ["alice"])[0].strip() or "alice"
             c = db()
