@@ -1,0 +1,121 @@
+name: devnet
+
+# Funds a devnet wallet and deploys the program there. Manual only -- it costs
+# minutes of mining and should not run on every push.
+#
+# The public faucet refuses runner IPs and the web faucet requires a GitHub
+# account it will vouch for, so this uses the proof-of-work faucet the Solana
+# faucet page itself recommends for automation.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_sol:
+        description: "Stop mining once the wallet holds this many SOL"
+        default: "3"
+      deploy:
+        description: "Deploy after funding (yes/no)"
+        default: "yes"
+
+jobs:
+  fund-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    container:
+      image: solanafoundation/anchor:v1.0.2
+      options: --user root
+    defaults:
+      run:
+        working-directory: onchain
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select a default Rust toolchain
+        run: |
+          rustup default stable || true
+          rustc --version
+
+      - name: Load the devnet wallet
+        env:
+          DEVNET_KEYPAIR: ${{ secrets.DEVNET_KEYPAIR }}
+        run: |
+          if [ -z "$DEVNET_KEYPAIR" ]; then
+            echo "::error::secret DEVNET_KEYPAIR is not set"
+            exit 1
+          fi
+          mkdir -p ~/.config/solana
+          printf '%s' "$DEVNET_KEYPAIR" > ~/.config/solana/id.json
+          solana config set --url devnet
+          echo "wallet: $(solana address)"
+          echo "balance: $(solana balance)"
+
+      - name: Cache the miner
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/devnet-pow
+          key: devnet-pow-v1
+
+      - name: Install the proof-of-work faucet
+        run: |
+          set -o pipefail
+          if [ ! -x "$HOME/.cargo/bin/devnet-pow" ]; then
+            cargo install devnet-pow 2>&1 | tail -5 | tee /tmp/step.log || {
+              echo "::error::install devnet-pow: $(tail -c 900 /tmp/step.log | tr '[:space:]' ' ')"
+              exit 1
+            }
+          fi
+          devnet-pow --help | head -5 || true
+
+      - name: Mine devnet SOL
+        run: |
+          set -o pipefail
+          TARGET="${{ github.event.inputs.target_sol }}"
+          for round in $(seq 1 60); do
+            BAL=$(solana balance | awk '{print $1}')
+            echo "round $round: balance ${BAL} SOL (target ${TARGET})"
+            if awk "BEGIN{exit !(${BAL} >= ${TARGET})}"; then
+              echo "funded"
+              break
+            fi
+            timeout 300 devnet-pow mine -d 3 --reward 0.02 --no-infer 2>&1 | tail -3 || true
+          done
+          echo "final balance: $(solana balance)"
+          echo "### devnet wallet" >> "$GITHUB_STEP_SUMMARY"
+          echo "- address: \`$(solana address)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- balance: $(solana balance)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build
+        if: ${{ github.event.inputs.deploy == 'yes' }}
+        run: |
+          set -o pipefail
+          { anchor build --ignore-keys && anchor keys sync && anchor build; } 2>&1 \
+            | tee /tmp/step.log || {
+              echo "::error::build: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
+              exit 1
+            }
+
+      - name: Deploy to devnet
+        if: ${{ github.event.inputs.deploy == 'yes' }}
+        run: |
+          set -o pipefail
+          anchor deploy --provider.cluster devnet 2>&1 | tee /tmp/step.log || {
+            echo "::error::deploy: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
+            exit 1
+          }
+          {
+            echo "### deployed"
+            echo '```'
+            anchor keys list
+            echo "remaining balance: $(solana balance)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the program keypair
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: program-keypair
+          path: onchain/target/deploy/backsy-keypair.json
+          if-no-files-found: warn
