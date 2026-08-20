@@ -66,10 +66,15 @@ jobs:
           key: anchor-1.0.2-${{ hashFiles('onchain/**/Cargo.toml') }}
           restore-keys: anchor-1.0.2-
 
+      # The source ships a placeholder id. The first build generates the real
+      # keypair (Anchor 1.x refuses to build on the mismatch, hence
+      # --ignore-keys), `keys sync` writes it into the source, then we build
+      # for real.
       - name: Sync the program id with the generated keypair
         run: |
-          anchor build
+          anchor build --ignore-keys
           anchor keys sync
+          anchor keys list
           anchor build
 
       - name: Install JS dependencies
