@@ -59,8 +59,16 @@ The app reads `PORT` from the environment and serves the site and the API from o
 process, which is what a single-port host needs.
 
 **Storage is a SQLite file.** On a host with an ephemeral filesystem the database is
-wiped on every redeploy. Fine for a prototype; attach a persistent volume and point
-`BACKSY_DB` at it before anyone's balance matters.
+wiped on every redeploy. To keep it, attach a persistent volume and point `BACKSY_DB`
+at a file on it:
+
+| Setting | Value |
+|---|---|
+| Volume mount path | `/data` |
+| Variable `BACKSY_DB` | `/data/backsy.db` |
+
+The startup log prints the database path it is actually using, so a misconfigured
+mount is visible immediately.
 
 ## The extension
 

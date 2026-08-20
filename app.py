@@ -33,6 +33,11 @@ CREATE INDEX IF NOT EXISTS ix_sender ON transfers(sender, status);
 
 
 def db(path=DB):
+    # BACKSY_DB usually points at a mounted volume; create the dir so a missing
+    # mount is a clear failure at startup rather than a crash on first request.
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
     c = sqlite3.connect(path, isolation_level=None)
     c.row_factory = sqlite3.Row
     c.execute("PRAGMA busy_timeout=5000")
@@ -386,5 +391,6 @@ if __name__ == "__main__":
     else:
         db().close()
         port = int(os.environ.get("PORT", 8000))
+        print("db: %s" % DB)
         print("listening on :%d  (site /, app /app)" % port)
         http.server.ThreadingHTTPServer(("0.0.0.0", port), H).serve_forever()
