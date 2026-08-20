@@ -33,6 +33,28 @@ describe("backsy", () => {
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+  /**
+   * Wait until the *chain's* clock passes a deadline. A local validator ties
+   * unix_timestamp to slots, so it does not track wall time -- sleeping for
+   * the hold window is not enough, and was why the expiry tests failed.
+   */
+  async function waitForChainTime(target: number, timeoutMs = 90000) {
+    const startedAt = Date.now();
+    let last = 0;
+    while (Date.now() - startedAt < timeoutMs) {
+      const slot = await provider.connection.getSlot();
+      const now = await provider.connection.getBlockTime(slot);
+      if (now !== null) {
+        last = now;
+        if (now > target) return now;
+      }
+      await sleep(1000);
+    }
+    throw new Error(
+      `chain clock never passed ${target} (last saw ${last}) within ${timeoutMs}ms`
+    );
+  }
+
   /** Assert a transaction fails. Cheaper than a chai-as-promised dependency. */
   async function rejects(p: Promise<unknown>, what = "expected this to fail") {
     try {
@@ -211,7 +233,8 @@ describe("backsy", () => {
     const bh = await provider.connection.getLatestBlockhash();
     await provider.connection.confirmTransaction({ signature: sig, ...bh });
 
-    await sleep(4000);
+    const acct = await program.account.transfer.fetch(pda(claim.publicKey));
+    await waitForChainTime(acct.expiresAt.toNumber());
     const before = await provider.connection.getBalance(sender.publicKey);
 
     await program.methods
@@ -231,7 +254,8 @@ describe("backsy", () => {
   it("refuses to claim an expired transfer", async () => {
     const claim = await create(2);
     const dest = Keypair.generate();
-    await sleep(4000);
+    const acct = await program.account.transfer.fetch(pda(claim.publicKey));
+    await waitForChainTime(acct.expiresAt.toNumber());
 
     await rejects(
       program.methods
