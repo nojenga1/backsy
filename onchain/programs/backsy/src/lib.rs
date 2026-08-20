@@ -52,7 +52,8 @@ pub mod backsy {
         // paid by `init`, and comes back to the sender when it closes.
         system_program::transfer(
             CpiContext::new(
-                ctx.accounts.system_program.to_account_info(),
+                // Anchor 1.x takes the program id here, not its AccountInfo.
+                ctx.accounts.system_program.key(),
                 system_program::Transfer {
                     from: ctx.accounts.sender.to_account_info(),
                     to: ctx.accounts.transfer.to_account_info(),
