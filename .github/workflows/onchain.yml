@@ -3,9 +3,8 @@ name: onchain
 # Builds and tests the Solana program on a Linux runner, so the toolchain
 # never has to exist on anyone's laptop.
 #
-# It runs inside the official Anchor image rather than installing Rust,
-# Solana and Anchor from scratch: compiling anchor-cli on a bare runner is
-# slow and is what broke the first two attempts.
+# Runs inside the official Anchor image: compiling anchor-cli on a bare
+# runner is slow and fragile.
 
 on:
   push:
@@ -18,7 +17,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     container:
-      image: solanafoundation/anchor:v0.31.1
+      image: solanafoundation/anchor:v1.0.2
       options: --user root
     defaults:
       run:
@@ -33,18 +32,16 @@ jobs:
         run: |
           echo "whoami=$(whoami)  HOME=$HOME"
           echo "RUSTUP_HOME=${RUSTUP_HOME:-unset}  CARGO_HOME=${CARGO_HOME:-unset}"
-          for d in /usr/local/rustup /usr/local/cargo /root/.rustup /root/.cargo; do
-            [ -d "$d" ] && echo "exists: $d"
-          done
           command -v rustup rustc cargo solana anchor node yarn || true
           rustup toolchain list || true
 
-      # The image ships rustup but root has no default toolchain selected,
-      # which is exactly what broke the previous run.
+      # The image ships rustup, but running as root leaves no toolchain
+      # selected, which is what broke an earlier run.
       - name: Select a default Rust toolchain
         run: |
-          rustup default stable
+          rustup default stable || true
           rustc --version
+          cargo --version
 
       - name: Versions
         run: |
@@ -66,20 +63,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             onchain/target
-          key: anchor-0.31.1-${{ hashFiles('onchain/**/Cargo.toml') }}
-          restore-keys: anchor-0.31.1-
-
-      # Solana's platform-tools ships Cargo 1.79, which cannot parse a manifest
-      # declaring edition2024. Resolve the lockfile with the host cargo, which
-      # can, then hold the offenders at their last compatible release.
-      # platform-tools' Cargo is 1.79 and chokes on manifests declaring
-      # edition2024. Rather than chase offenders one at a time, resolve the
-      # whole graph against the program's declared rust-version.
-      - name: Resolve dependencies the on-chain Cargo can read
-        run: |
-          cargo generate-lockfile             --config 'resolver.incompatible-rust-versions="fallback"'
-          echo "--- versions picked for the usual suspects ---"
-          grep -E -A1 'name = "(cpufeatures|sha2|curve25519-dalek|zerocopy)"' Cargo.lock || true
+          key: anchor-1.0.2-${{ hashFiles('onchain/**/Cargo.toml') }}
+          restore-keys: anchor-1.0.2-
 
       - name: Sync the program id with the generated keypair
         run: |

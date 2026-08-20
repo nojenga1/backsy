@@ -3,9 +3,6 @@ name = "backsy"
 version = "0.1.0"
 description = "Reversible transfers on Solana"
 edition = "2021"
-# platform-tools ships this Rust; declaring it lets the resolver
-# avoid dependency versions that need a newer one.
-rust-version = "1.79"
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -20,4 +17,4 @@ no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build"]
 
 [dependencies]
-anchor-lang = "0.31.1"
+anchor-lang = "1.0.2"
