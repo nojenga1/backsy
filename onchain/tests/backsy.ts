@@ -45,6 +45,9 @@ describe("backsy", () => {
       const slot = await provider.connection.getSlot();
       const now = await provider.connection.getBlockTime(slot);
       if (now !== null) {
+        if (now !== last) {
+          console.log(`  chain clock ${now}, need > ${target} (${target - now}s to go)`);
+        }
         last = now;
         if (now > target) return now;
       }
