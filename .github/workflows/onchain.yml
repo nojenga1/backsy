@@ -26,17 +26,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Never fails: one run of this tells us where the image keeps things.
       - name: Locate the image's toolchain
         continue-on-error: true
         run: |
           echo "whoami=$(whoami)  HOME=$HOME"
-          echo "RUSTUP_HOME=${RUSTUP_HOME:-unset}  CARGO_HOME=${CARGO_HOME:-unset}"
           command -v rustup rustc cargo solana anchor node yarn || true
           rustup toolchain list || true
 
-      # The image ships rustup, but running as root leaves no toolchain
-      # selected, which is what broke an earlier run.
       - name: Select a default Rust toolchain
         run: |
           rustup default stable || true
@@ -66,32 +62,29 @@ jobs:
           key: anchor-1.0.2-${{ hashFiles('onchain/**/Cargo.toml') }}
           restore-keys: anchor-1.0.2-
 
-      # The source ships a placeholder id. The first build generates the real
-      # keypair (Anchor 1.x refuses to build on the mismatch, hence
-      # --ignore-keys), `keys sync` writes it into the source, then we build
-      # for real.
+      # Log downloads need a token even on a public repo, but annotations do
+      # not. Failing steps echo their tail as ::error:: so the reason is
+      # readable without one. [:space:] avoids escaping a newline in YAML,
+      # which is what broke this file once already.
       - name: Sync the program id with the generated keypair
         run: |
           set -o pipefail
-          {
+          build_all() {
             anchor build --ignore-keys &&
             anchor keys sync &&
             anchor keys list &&
             anchor build
-          } 2>&1 | tee /tmp/step.log || {
-            echo "::error::build: $(tail -c 1800 /tmp/step.log | tr '
-' ' ')"
+          }
+          build_all 2>&1 | tee /tmp/step.log || {
+            echo "::error::build: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
 
-      # Log downloads need a token, but annotations are public. Echoing the
-      # tail of a failure as ::error:: makes it readable without one.
       - name: Install JS dependencies
         run: |
           set -o pipefail
           yarn install 2>&1 | tee /tmp/step.log || {
-            echo "::error::yarn install: $(tail -c 1200 /tmp/step.log | tr '
-' ' ')"
+            echo "::error::yarn: $(tail -c 1200 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
 
@@ -99,8 +92,7 @@ jobs:
         run: |
           set -o pipefail
           anchor test --skip-build 2>&1 | tee /tmp/step.log || {
-            echo "::error::anchor test: $(tail -c 1800 /tmp/step.log | tr '
-' ' ')"
+            echo "::error::test: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
 
