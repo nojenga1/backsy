@@ -72,16 +72,37 @@ jobs:
       # for real.
       - name: Sync the program id with the generated keypair
         run: |
-          anchor build --ignore-keys
-          anchor keys sync
-          anchor keys list
-          anchor build
+          set -o pipefail
+          {
+            anchor build --ignore-keys &&
+            anchor keys sync &&
+            anchor keys list &&
+            anchor build
+          } 2>&1 | tee /tmp/step.log || {
+            echo "::error::build: $(tail -c 1800 /tmp/step.log | tr '
+' ' ')"
+            exit 1
+          }
 
+      # Log downloads need a token, but annotations are public. Echoing the
+      # tail of a failure as ::error:: makes it readable without one.
       - name: Install JS dependencies
-        run: yarn install
+        run: |
+          set -o pipefail
+          yarn install 2>&1 | tee /tmp/step.log || {
+            echo "::error::yarn install: $(tail -c 1200 /tmp/step.log | tr '
+' ' ')"
+            exit 1
+          }
 
       - name: Test against a local validator
-        run: anchor test --skip-build
+        run: |
+          set -o pipefail
+          anchor test --skip-build 2>&1 | tee /tmp/step.log || {
+            echo "::error::anchor test: $(tail -c 1800 /tmp/step.log | tr '
+' ' ')"
+            exit 1
+          }
 
       - name: Upload the built program
         if: always()
