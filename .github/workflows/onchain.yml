@@ -72,11 +72,14 @@ jobs:
       # Solana's platform-tools ships Cargo 1.79, which cannot parse a manifest
       # declaring edition2024. Resolve the lockfile with the host cargo, which
       # can, then hold the offenders at their last compatible release.
-      - name: Pin crates newer than the on-chain toolchain's Cargo
+      # platform-tools' Cargo is 1.79 and chokes on manifests declaring
+      # edition2024. Rather than chase offenders one at a time, resolve the
+      # whole graph against the program's declared rust-version.
+      - name: Resolve dependencies the on-chain Cargo can read
         run: |
-          cargo generate-lockfile
-          cargo update -p cpufeatures --precise 0.2.17
-          grep -A1 'name = "cpufeatures"' Cargo.lock | head -4
+          cargo generate-lockfile             --config 'resolver.incompatible-rust-versions="fallback"'
+          echo "--- versions picked for the usual suspects ---"
+          grep -E -A1 'name = "(cpufeatures|sha2|curve25519-dalek|zerocopy)"' Cargo.lock || true
 
       - name: Sync the program id with the generated keypair
         run: |
