@@ -92,21 +92,23 @@ jobs:
             exit 1
           }
 
-      # Anchor 1.x spawns `surfpool` by default and the image has no such
-      # binary. Run the validator that is in the image and hand it over.
-      - name: Start a local validator
+      # Anchor 1.x spawns `surfpool` for tests, and newer Solana releases no
+      # longer ship solana-test-validator, so the image has neither.
+      - name: Install surfpool
         run: |
-          solana-test-validator --reset --quiet &
-          for i in $(seq 1 45); do
-            solana cluster-version >/dev/null 2>&1 && { echo "validator up after ${i}s"; break; }
-            sleep 1
-          done
-          solana cluster-version
+          set -o pipefail
+          curl -sSfL -o /tmp/surfpool.tar.gz             https://github.com/solana-foundation/surfpool/releases/download/v1.5.0/surfpool-linux-x64.tar.gz 2>&1             | tee /tmp/step.log || {
+              echo "::error::surfpool download: $(tail -c 900 /tmp/step.log | tr '[:space:]' ' ')"
+              exit 1
+            }
+          tar -xzf /tmp/surfpool.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/surfpool
+          surfpool --version
 
       - name: Test against a local validator
         run: |
           set -o pipefail
-          anchor test --skip-build --skip-local-validator 2>&1 | tee /tmp/step.log || {
+          anchor test --skip-build 2>&1 | tee /tmp/step.log || {
             echo "::error::test: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
