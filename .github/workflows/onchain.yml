@@ -70,14 +70,15 @@ jobs:
       # not. Failing steps echo their tail as ::error:: so the reason is
       # readable without one. [:space:] avoids escaping a newline in YAML,
       # which is what broke this file once already.
-      - name: Sync the program id with the generated keypair
+      # The program id is committed in the source now, so no syncing: a
+      # generated one would change the program's address on every run.
+      - name: Build
         run: |
           set -o pipefail
           build_all() {
             anchor build --ignore-keys &&
-            anchor keys sync &&
             anchor keys list &&
-            anchor build
+            anchor build --ignore-keys
           }
           build_all 2>&1 | tee /tmp/step.log || {
             echo "::error::build: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"

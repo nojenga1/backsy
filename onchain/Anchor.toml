@@ -6,10 +6,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-backsy = "Bkzy1111111111111111111111111111111111111111"
+backsy = "BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W"
 
 [programs.devnet]
-backsy = "Bkzy1111111111111111111111111111111111111111"
+backsy = "BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W"
 
 [registry]
 url = "https://api.apr.dev"

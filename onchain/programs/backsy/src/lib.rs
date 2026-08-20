@@ -15,8 +15,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
-// Placeholder until the first build; `anchor keys sync` writes the real one.
-declare_id!("Bkzy1111111111111111111111111111111111111111");
+declare_id!("BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W");
 
 /// Damage cap while the program is unaudited. Raise it deliberately, later.
 pub const MAX_AMOUNT: u64 = 500_000_000; // 0.5 SOL
