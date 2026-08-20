@@ -22,6 +22,9 @@ jobs:
     defaults:
       run:
         working-directory: onchain
+        # The container runs steps with sh unless told otherwise, and sh has
+        # no `set -o pipefail` -- it exits 2 before the step even starts.
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
