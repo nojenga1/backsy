@@ -67,17 +67,36 @@ jobs:
               exit 1
             }
 
+      # A failed deploy strands the upload buffer and the rent inside it.
+      - name: Recover stranded deploy buffers
+        run: |
+          solana program close --buffers --bypass-warning || true
+          echo "balance after cleanup: $(solana balance)"
+
+      # `anchor deploy` is deprecated and gives no control over retries. The
+      # public devnet RPC drops some of the hundreds of write transactions a
+      # deploy sends, which is what "max retries exceeded" meant; --use-rpc
+      # plus a high signing-attempt count rides that out.
       - name: Deploy to devnet
         run: |
           set -o pipefail
-          anchor deploy --provider.cluster devnet 2>&1 | tee /tmp/step.log || {
-            echo "::error::deploy: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
-            exit 1
-          }
+          for attempt in 1 2 3; do
+            echo "=== deploy attempt $attempt ==="
+            if solana program deploy                  --url devnet                  --use-rpc                  --max-sign-attempts 200                  --program-id target/deploy/backsy-keypair.json                  target/deploy/backsy.so 2>&1 | tee /tmp/step.log; then
+              echo "deployed"
+              break
+            fi
+            solana program close --buffers --bypass-warning || true
+            if [ "$attempt" = "3" ]; then
+              echo "::error::deploy: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
+              exit 1
+            fi
+            sleep 15
+          done
           {
-            echo "### deployed"
+            echo "### deployed to devnet"
             echo '```'
-            anchor keys list
+            echo "program id: $(solana address -k target/deploy/backsy-keypair.json)"
             echo "remaining balance: $(solana balance)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
