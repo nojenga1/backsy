@@ -69,6 +69,15 @@ jobs:
           key: anchor-0.31.1-${{ hashFiles('onchain/**/Cargo.toml') }}
           restore-keys: anchor-0.31.1-
 
+      # Solana's platform-tools ships Cargo 1.79, which cannot parse a manifest
+      # declaring edition2024. Resolve the lockfile with the host cargo, which
+      # can, then hold the offenders at their last compatible release.
+      - name: Pin crates newer than the on-chain toolchain's Cargo
+        run: |
+          cargo generate-lockfile
+          cargo update -p cpufeatures --precise 0.2.17
+          grep -A1 'name = "cpufeatures"' Cargo.lock | head -4
+
       - name: Sync the program id with the generated keypair
         run: |
           anchor build
