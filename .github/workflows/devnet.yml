@@ -17,7 +17,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     container:
       image: solanafoundation/anchor:v1.0.2
       options: --user root
@@ -77,22 +77,30 @@ jobs:
       # public devnet RPC drops some of the hundreds of write transactions a
       # deploy sends, which is what "max retries exceeded" meant; --use-rpc
       # plus a high signing-attempt count rides that out.
+      # Uploading a program is hundreds of write transactions and the public
+      # devnet RPC drops many of them. Reusing one buffer across attempts means
+      # a retry only writes the chunks that did not land -- closing the buffer
+      # between attempts, as this did before, threw that progress away.
       - name: Deploy to devnet
         run: |
           set -o pipefail
-          for attempt in 1 2 3; do
+          BUF=target/deploy/buffer-keypair.json
+          solana-keygen new --no-bip39-passphrase --force -o "$BUF" >/dev/null
+          echo "buffer: $(solana address -k $BUF)"
+          for attempt in 1 2 3 4 5; do
             echo "=== deploy attempt $attempt ==="
-            if solana program deploy                  --url devnet                  --use-rpc                  --max-sign-attempts 200                  --program-id target/deploy/backsy-keypair.json                  target/deploy/backsy.so 2>&1 | tee /tmp/step.log; then
+            if solana program deploy                  --url devnet                  --use-rpc                  --max-sign-attempts 500                  --buffer "$BUF"                  --program-id target/deploy/backsy-keypair.json                  target/deploy/backsy.so 2>&1 | tee /tmp/step.log; then
               echo "deployed"
+              DEPLOYED=1
               break
             fi
-            solana program close --buffers --bypass-warning || true
-            if [ "$attempt" = "3" ]; then
-              echo "::error::deploy: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
-              exit 1
-            fi
-            sleep 15
+            echo "attempt $attempt failed, resuming into the same buffer"
+            sleep 20
           done
+          if [ -z "$DEPLOYED" ]; then
+            echo "::error::deploy: $(tail -c 1500 /tmp/step.log | tr '[:space:]' ' ')"
+            exit 1
+          fi
           {
             echo "### deployed to devnet"
             echo '```'
