@@ -1,26 +1,23 @@
 name: devnet
 
-# Funds a devnet wallet and deploys the program there. Manual only -- it costs
-# minutes of mining and should not run on every push.
+# Deploys the program to devnet from an already-funded wallet. Manual only.
 #
-# The public faucet refuses runner IPs and the web faucet requires a GitHub
-# account it will vouch for, so this uses the proof-of-work faucet the Solana
-# faucet page itself recommends for automation.
+# Funding happens on a developer machine, not here: the proof-of-work faucet
+# is the only route left, and running proof-of-work on GitHub's runners reads
+# as crypto mining, which their acceptable use policy forbids. This workflow
+# only checks the wallet has enough and then deploys.
 
 on:
   workflow_dispatch:
     inputs:
-      target_sol:
-        description: "Stop mining once the wallet holds this many SOL"
-        default: "3"
-      deploy:
-        description: "Deploy after funding (yes/no)"
-        default: "yes"
+      min_sol:
+        description: "Refuse to deploy unless the wallet holds at least this"
+        default: "2"
 
 jobs:
-  fund-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 30
     container:
       image: solanafoundation/anchor:v1.0.2
       options: --user root
@@ -51,43 +48,17 @@ jobs:
           echo "wallet: $(solana address)"
           echo "balance: $(solana balance)"
 
-      - name: Cache the miner
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/bin/devnet-pow
-          key: devnet-pow-v1
-
-      - name: Install the proof-of-work faucet
+      - name: Check the wallet is funded
         run: |
-          set -o pipefail
-          if [ ! -x "$HOME/.cargo/bin/devnet-pow" ]; then
-            cargo install devnet-pow 2>&1 | tail -5 | tee /tmp/step.log || {
-              echo "::error::install devnet-pow: $(tail -c 900 /tmp/step.log | tr '[:space:]' ' ')"
-              exit 1
-            }
-          fi
-          devnet-pow --help | head -5 || true
-
-      - name: Mine devnet SOL
-        run: |
-          set -o pipefail
-          TARGET="${{ github.event.inputs.target_sol }}"
-          for round in $(seq 1 60); do
-            BAL=$(solana balance | awk '{print $1}')
-            echo "round $round: balance ${BAL} SOL (target ${TARGET})"
-            if awk "BEGIN{exit !(${BAL} >= ${TARGET})}"; then
-              echo "funded"
-              break
-            fi
-            timeout 300 devnet-pow mine -d 3 --reward 0.02 --no-infer 2>&1 | tail -3 || true
-          done
-          echo "final balance: $(solana balance)"
-          echo "### devnet wallet" >> "$GITHUB_STEP_SUMMARY"
-          echo "- address: \`$(solana address)\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- balance: $(solana balance)" >> "$GITHUB_STEP_SUMMARY"
+          BAL=$(solana balance | awk '{print $1}')
+          MIN="${{ github.event.inputs.min_sol }}"
+          echo "balance ${BAL} SOL, need ${MIN}"
+          awk "BEGIN{exit !(${BAL} >= ${MIN})}" || {
+            echo "::error::wallet holds ${BAL} SOL, needs ${MIN}. Fund it with devnet-pow locally."
+            exit 1
+          }
 
       - name: Build
-        if: ${{ github.event.inputs.deploy == 'yes' }}
         run: |
           set -o pipefail
           { anchor build --ignore-keys && anchor keys sync && anchor build; } 2>&1 \
@@ -97,7 +68,6 @@ jobs:
             }
 
       - name: Deploy to devnet
-        if: ${{ github.event.inputs.deploy == 'yes' }}
         run: |
           set -o pipefail
           anchor deploy --provider.cluster devnet 2>&1 | tee /tmp/step.log || {
