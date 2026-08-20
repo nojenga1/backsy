@@ -82,3 +82,4 @@ Load it unpacked: `chrome://extensions` → Developer mode → Load unpacked →
 Real: the state machine, the concurrency guards, the claim links, the expiry.
 Not real: the chain. The escrow is a row in SQLite that the server agrees to honour.
 
+
