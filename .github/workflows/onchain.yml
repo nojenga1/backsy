@@ -27,9 +27,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: What the image gives us
+      # Never fails: one run of this tells us where the image keeps things.
+      - name: Locate the image's toolchain
+        continue-on-error: true
         run: |
+          echo "whoami=$(whoami)  HOME=$HOME"
+          echo "RUSTUP_HOME=${RUSTUP_HOME:-unset}  CARGO_HOME=${CARGO_HOME:-unset}"
+          for d in /usr/local/rustup /usr/local/cargo /root/.rustup /root/.cargo; do
+            [ -d "$d" ] && echo "exists: $d"
+          done
+          command -v rustup rustc cargo solana anchor node yarn || true
+          rustup toolchain list || true
+
+      # The image ships rustup but root has no default toolchain selected,
+      # which is exactly what broke the previous run.
+      - name: Select a default Rust toolchain
+        run: |
+          rustup default stable
           rustc --version
+
+      - name: Versions
+        run: |
           solana --version
           anchor --version
           node --version || echo "no node"
