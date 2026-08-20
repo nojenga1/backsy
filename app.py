@@ -10,8 +10,10 @@ import http.server, json, mimetypes, os, secrets, sqlite3, time, urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.normpath(os.path.join(HERE, "site"))
-DB = os.environ.get("BACKSY_DB", os.path.join(HERE, "backsy.db"))
-DB_FROM_ENV = "BACKSY_DB" in os.environ
+# .strip(): a value pasted into a dashboard picks up stray whitespace, and a
+# leading tab quietly turns an absolute mount path into a relative one.
+DB = os.environ.get("BACKSY_DB", "").strip() or os.path.join(HERE, "backsy.db")
+DB_FROM_ENV = bool(os.environ.get("BACKSY_DB", "").strip())
 STARTED = time.time()
 HOLD_SECONDS = 7 * 24 * 3600
 START_BALANCE = 1000.0
