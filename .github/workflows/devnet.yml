@@ -49,8 +49,13 @@ jobs:
           mkdir -p ~/.config/solana
           printf '%s' "$DEVNET_KEYPAIR" > ~/.config/solana/id.json
           if [ -n "$HELIUS_RPC_URL" ]; then
+            # Accept either a full endpoint URL or a bare API key, so the
+            # secret cannot be filled in wrongly.
+            case "$HELIUS_RPC_URL" in
+              http*) printf '%s' "$HELIUS_RPC_URL" > ~/.rpc_url ;;
+              *)     printf 'https://devnet.helius-rpc.com/?api-key=%s' "$HELIUS_RPC_URL" > ~/.rpc_url ;;
+            esac
             echo "using the dedicated RPC endpoint"
-            printf '%s' "$HELIUS_RPC_URL" > ~/.rpc_url
           else
             echo "::warning::HELIUS_RPC_URL not set, falling back to the public RPC"
             printf '%s' "https://api.devnet.solana.com" > ~/.rpc_url
@@ -58,6 +63,15 @@ jobs:
           solana config set --url "$(cat ~/.rpc_url)" >/dev/null
           echo "wallet: $(solana address)"
           echo "balance: $(solana balance)"
+
+      - name: Check the RPC actually answers for devnet
+        run: |
+          GENESIS=$(solana genesis-hash)
+          echo "genesis: $GENESIS"
+          if [ "$GENESIS" != "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG" ]; then
+            echo "::error::this endpoint is not devnet (genesis $GENESIS). Check the secret points at devnet, not mainnet."
+            exit 1
+          fi
 
       - name: Check the wallet is funded
         run: |
