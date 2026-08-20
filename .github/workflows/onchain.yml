@@ -1,0 +1,90 @@
+name: onchain
+
+# Builds and tests the Solana program on a Linux runner, so the toolchain
+# never has to exist on anyone's laptop.
+
+on:
+  push:
+    paths: ["onchain/**", ".github/workflows/onchain.yml"]
+  pull_request:
+    paths: ["onchain/**", ".github/workflows/onchain.yml"]
+  workflow_dispatch:
+
+env:
+  SOLANA_VERSION: v2.1.21
+  ANCHOR_VERSION: 0.31.1
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: onchain
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal
+
+      - name: Cache cargo and tool binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.local/share/solana
+            ~/.avm
+            onchain/target
+          key: solana-${{ env.SOLANA_VERSION }}-anchor-${{ env.ANCHOR_VERSION }}-${{ hashFiles('onchain/**/Cargo.toml') }}
+          restore-keys: solana-${{ env.SOLANA_VERSION }}-anchor-${{ env.ANCHOR_VERSION }}-
+
+      - name: Install Solana CLI
+        run: |
+          if [ ! -x "$HOME/.local/share/solana/install/active_release/bin/solana" ]; then
+            sh -c "$(curl -sSfL https://release.anza.xyz/${SOLANA_VERSION}/install)"
+          fi
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+
+      - name: Install Anchor
+        run: |
+          if [ ! -x "$HOME/.cargo/bin/anchor" ]; then
+            cargo install --git https://github.com/coral-xyz/anchor avm --force
+            avm install ${ANCHOR_VERSION}
+            avm use ${ANCHOR_VERSION}
+          fi
+
+      - name: Versions
+        run: |
+          solana --version
+          anchor --version
+
+      - name: Create a throwaway keypair
+        run: |
+          solana-keygen new --no-bip39-passphrase --force -o ~/.config/solana/id.json
+          solana config set --url localhost
+
+      - name: Sync the program id with the built keypair
+        run: |
+          anchor build
+          anchor keys sync
+
+      - name: Build
+        run: anchor build
+
+      - name: Install JS dependencies
+        run: yarn install --frozen-lockfile || yarn install
+
+      - name: Test against a local validator
+        run: anchor test
+
+      - name: Upload the built program
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backsy-program
+          path: |
+            onchain/target/deploy/backsy.so
+            onchain/target/idl/backsy.json
+          if-no-files-found: warn
