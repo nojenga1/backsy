@@ -34,9 +34,13 @@ jobs:
           rustup default stable || true
           rustc --version
 
-      - name: Load the devnet wallet
+      # The public devnet RPC throttles writes from datacenter addresses to the
+      # point of stalling: a previous run landed 11 of ~200 chunks and then sat
+      # idle for an hour. A dedicated endpoint is the fix.
+      - name: Load the devnet wallet and RPC
         env:
           DEVNET_KEYPAIR: ${{ secrets.DEVNET_KEYPAIR }}
+          HELIUS_RPC_URL: ${{ secrets.HELIUS_RPC_URL }}
         run: |
           if [ -z "$DEVNET_KEYPAIR" ]; then
             echo "::error::secret DEVNET_KEYPAIR is not set"
@@ -44,7 +48,14 @@ jobs:
           fi
           mkdir -p ~/.config/solana
           printf '%s' "$DEVNET_KEYPAIR" > ~/.config/solana/id.json
-          solana config set --url devnet
+          if [ -n "$HELIUS_RPC_URL" ]; then
+            echo "using the dedicated RPC endpoint"
+            printf '%s' "$HELIUS_RPC_URL" > ~/.rpc_url
+          else
+            echo "::warning::HELIUS_RPC_URL not set, falling back to the public RPC"
+            printf '%s' "https://api.devnet.solana.com" > ~/.rpc_url
+          fi
+          solana config set --url "$(cat ~/.rpc_url)" >/dev/null
           echo "wallet: $(solana address)"
           echo "balance: $(solana balance)"
 
