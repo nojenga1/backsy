@@ -19,10 +19,11 @@
       <a class="nav-link" href="/#features">Features</a>
       <a class="nav-link" href="/how-it-works/">How it works</a>
       <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/wallet/">Wallet</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/support/">Support</a>
     </nav>
-    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+    <div class="nav-right"><a class="btn-download" href="/wallet/">Open wallet</a></div>
   </div>
 </header>
 
@@ -57,9 +58,9 @@
   <p>Backsy splits your balance into <strong>spendable</strong> and <strong>in flight</strong>. In-flight money is money you've sent but can still recover. It is shown separately so you always know what you can actually spend right now.</p>
 
   <h2>Which networks</h2>
-  <p>The current prototype runs on a simulated ledger and does not touch a real chain. Solana is the first target for the on-chain version, since escrow accounts there are cheap enough for everyday amounts.</p>
+  <p>Solana devnet. The program is live there and every send, cancel and claim is a real transaction. Mainnet waits on an audit, because that is where a mistake costs money.</p>
 
-  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+  <p class="note">Backsy runs on Solana <strong>devnet</strong>, a test network. The program is deployed and transfers really happen on-chain, but devnet coins have no value and the program has not been audited. Do not treat it as a place for real money.</p>
 </main>
 
 <footer class="footer">

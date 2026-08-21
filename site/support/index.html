@@ -19,10 +19,11 @@
       <a class="nav-link" href="/#features">Features</a>
       <a class="nav-link" href="/how-it-works/">How it works</a>
       <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/wallet/">Wallet</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/support/">Support</a>
     </nav>
-    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+    <div class="nav-right"><a class="btn-download" href="/wallet/">Open wallet</a></div>
   </div>
 </header>
 
@@ -47,15 +48,15 @@
   <p>If it's still pending, cancel it — that's the whole point of Backsy. If they already claimed it, the money is gone, exactly as it would be in any other wallet.</p>
 
   <h2>Which networks are supported?</h2>
-  <p>None yet. The current build runs on a simulated ledger. Solana is the first planned target for the on-chain version.</p>
+  <p>Solana devnet. Point your wallet at devnet and open the on-chain wallet at <a href="/wallet/">/wallet</a>.</p>
 
   <h2>Has the code been audited?</h2>
   <p>No. Backsy is an early prototype and has had no external security review. Please don't put real money behind it in this form.</p>
 
   <h2>Where is my balance stored?</h2>
-  <p>In the prototype, on the server, in a plain database. There is no wallet and no key on your device yet — that changes only when the on-chain version ships.</p>
+  <p>On the chain, in an escrow account the program controls. Your own keys stay in your browser wallet; this site never receives them. The older demo at <code>/app</code> is the exception — that one is a database simulation with no wallet at all.</p>
 
-  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+  <p class="note">Backsy runs on Solana <strong>devnet</strong>, a test network. The program is deployed and transfers really happen on-chain, but devnet coins have no value and the program has not been audited. Do not treat it as a place for real money.</p>
 </main>
 
 <footer class="footer">

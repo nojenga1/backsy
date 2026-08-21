@@ -19,10 +19,11 @@
       <a class="nav-link" href="/#features">Features</a>
       <a class="nav-link" href="/how-it-works/">How it works</a>
       <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/wallet/">Wallet</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/support/">Support</a>
     </nav>
-    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+    <div class="nav-right"><a class="btn-download" href="/wallet/">Open wallet</a></div>
   </div>
 </header>
 
@@ -62,9 +63,9 @@
   <p><code>python app.py --test</code> runs a self-check covering double claims, cancel-after-claim, cancellation by a non-sender, overdraft, expiry, and a closing invariant that the total of every balance plus everything in escrow never changes.</p>
 
   <h2>What is real, and what isn't</h2>
-  <p>Real: the state machine, the concurrency guards, the claim links, the expiry. Not real: the chain. There is no on-chain program, no wallet, no key management. The escrow is a row in SQLite that the server agrees to honour.</p>
+  <p>Real: the program on devnet, the escrow accounts it holds funds in, the claim links, the expiry. Not real: the money, which is devnet test currency. The demo wallet at <code>/app</code> still runs the original SQLite simulation; the on-chain one lives at <code>/wallet</code>.</p>
 
-  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+  <p class="note">Backsy runs on Solana <strong>devnet</strong>, a test network. The program is deployed and transfers really happen on-chain, but devnet coins have no value and the program has not been audited. Do not treat it as a place for real money.</p>
 </main>
 
 <footer class="footer">

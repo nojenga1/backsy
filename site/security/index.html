@@ -19,10 +19,11 @@
       <a class="nav-link" href="/#features">Features</a>
       <a class="nav-link" href="/how-it-works/">How it works</a>
       <a class="nav-link" href="/security/">Security</a>
+      <a class="nav-link" href="/wallet/">Wallet</a>
       <a class="nav-link" href="/developers/">Developers</a>
       <a class="nav-link" href="/support/">Support</a>
     </nav>
-    <div class="nav-right"><a class="btn-download" href="/download/">Get Backsy</a></div>
+    <div class="nav-right"><a class="btn-download" href="/wallet/">Open wallet</a></div>
   </div>
 </header>
 
@@ -47,13 +48,13 @@
   <p>A transfer nobody collects is not stranded. After 7 days it returns to the sender automatically, so a wrong or abandoned link costs you the wait and nothing else.</p>
 
   <div class="callout">
-    <p><strong>Being honest about the risks.</strong> This prototype is not self-custodial, holds no keys, and has not been audited. Balances live in an ordinary database on the server, and the escrow is simulated rather than enforced by a smart contract. Do not put real money behind it in its current form.</p>
+    <p><strong>Being honest about the risks.</strong> The on-chain wallet is self-custodial — your browser wallet signs, and this site never sees a key. But the program has <strong>not been audited</strong>, and it runs on devnet where the coins are worthless. Do not put real money behind it in its current form.</p>
   </div>
 
   <h2>What real custody would require</h2>
   <p>Making these guarantees hold without trusting a server means moving the escrow on-chain: a program that holds funds in a per-transfer account, releases them against the claim secret, and lets only the original sender withdraw early. Until that program is deployed and audited, the protection described above is a product promise, not a cryptographic one.</p>
 
-  <p class="note">Backsy is an early prototype. Reversible transfers are demonstrated with a simulated escrow — no on-chain program is deployed and no real funds move.</p>
+  <p class="note">Backsy runs on Solana <strong>devnet</strong>, a test network. The program is deployed and transfers really happen on-chain, but devnet coins have no value and the program has not been audited. Do not treat it as a place for real money.</p>
 </main>
 
 <footer class="footer">
