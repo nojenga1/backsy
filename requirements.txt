@@ -1,2 +1,6 @@
 # No dependencies -- Backsy runs on the Python standard library.
 # This file exists so the build system detects a Python project.
+
+# Signing the devnet faucet's transfers. The rest of the app is stdlib-only;
+# hand-rolling ed25519 and transaction serialisation is not worth the risk.
+solders>=0.21

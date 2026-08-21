@@ -77,6 +77,7 @@
     $("address").textContent = pubkey.toBase58();
     $("sendBtn").disabled = false;
     await refresh();
+    await faucetStatus();
   }
 
   async function refresh() {
@@ -84,6 +85,52 @@
     const lamports = await connection.getBalance(pubkey);
     $("balance").textContent = sol(lamports) + " SOL";
     await listPending();
+  }
+
+  /* ---------- faucet ----------
+     Every public devnet faucet turns someone away: rate limits by address,
+     accounts deemed too new, empty pools. A visitor with nothing in their
+     wallet cannot try this at all, so the site hands out a sip of its own. */
+  async function faucetStatus() {
+    try {
+      const r = await fetch("/api/faucet").then((x) => x.json());
+      if (r.available) $("faucetWrap").classList.remove("hidden");
+    } catch {
+      /* the faucet is a convenience; the page works without it */
+    }
+  }
+
+  async function askForCoins() {
+    const btn = $("faucetBtn");
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    say($("faucetMsg"), "");
+    try {
+      const r = await fetch("/api/faucet", {
+        method: "POST",
+        body: JSON.stringify({ address: pubkey.toBase58() }),
+      }).then((x) => x.json());
+      if (r.error) throw new Error(r.error);
+      say($("faucetMsg"), "On the way. It lands in a few seconds.", "ok");
+      // The public RPC this page reads lags behind the one the server sends
+      // through, so look more than once before believing the balance.
+      for (let i = 0; i < 10; i++) {
+        await new Promise((k) => setTimeout(k, 2000));
+        const now = await connection.getBalance(pubkey);
+        if (now > 0) {
+          await refresh();
+          say($("faucetMsg"), "Arrived.", "ok");
+          $("faucetWrap").classList.add("hidden");
+          return;
+        }
+      }
+      await refresh();
+    } catch (e) {
+      say($("faucetMsg"), String(e.message || e), "err");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Get test coins";
+    }
   }
 
   /* ---------- send ---------- */
@@ -235,6 +282,7 @@
   /* ---------- boot ---------- */
   $("connectBtn").onclick = connect;
   $("sendBtn").onclick = createTransfer;
+  $("faucetBtn").onclick = askForCoins;
 
   function handleLink() {
     const fromLink = claimKeyFromUrl();

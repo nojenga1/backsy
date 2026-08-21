@@ -8,6 +8,11 @@ Run:  python app.py   ->  http://localhost:8000  (site /, app /app)
 """
 import http.server, json, mimetypes, os, secrets, sqlite3, time, urllib.parse
 
+try:
+    import faucet  # optional: only if the devnet faucet is configured
+except ImportError:  # pragma: no cover - the site works without it
+    faucet = None
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.normpath(os.path.join(HERE, "site"))
 # .strip(): a value pasted into a dashboard picks up stray whitespace, and a
@@ -276,6 +281,14 @@ class H(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = urllib.parse.urlparse(self.path)
+        if p.path == "/api/faucet":
+            if faucet is None:
+                return self.reply(200, json.dumps({"available": False, "reason": "not installed"}))
+            c = db()
+            try:
+                return self.reply(200, json.dumps(faucet.status(c)))
+            finally:
+                c.close()
         if p.path == "/api/health":
             # Diagnostics for the deploy: is the database on the mounted volume,
             # and is this a different process than the last time you looked?
@@ -332,6 +345,14 @@ class H(http.server.BaseHTTPRequestHandler):
             if self.path == "/api/send":
                 tok = send(c, user, body.get("to"), body.get("amount"))
                 return self.reply(200, json.dumps({"token": tok}))
+            if self.path == "/api/faucet":
+                if faucet is None:
+                    return self.reply(503, json.dumps({"error": "The faucet is not installed."}))
+                try:
+                    sig = faucet.drip(c, (body.get("address") or "").strip())
+                except faucet.FaucetError as e:
+                    return self.reply(429, json.dumps({"error": str(e)}))
+                return self.reply(200, json.dumps({"signature": sig, "lamports": faucet.DRIP_LAMPORTS}))
             if self.path in ("/api/claim", "/api/cancel"):
                 action = self.path.rsplit("/", 1)[1]
                 t = resolve(c, (body.get("token") or "").strip(), action, actor=user)

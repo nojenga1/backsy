@@ -70,6 +70,26 @@ at a file on it:
 The startup log prints the database path it is actually using, so a misconfigured
 mount is visible immediately.
 
+## The devnet faucet
+
+A visitor with an empty wallet cannot try any of this, and every public devnet
+faucet turned us away at some point — rate limits by IP, GitHub accounts judged
+too new, drained proof-of-work pools. So the site hands out a sip of its own:
+0.05 SOL, once per address per day, with a daily ceiling.
+
+Set on the server:
+
+| Variable | Meaning |
+|---|---|
+| `BACKSY_FAUCET_KEY` | the devnet wallet's secret key, as the JSON array `solana-keygen` writes |
+| `BACKSY_RPC` | RPC endpoint; the public one throttles hard, so use a provider |
+| `BACKSY_DRIP_LAMPORTS` | optional, default 50000000 (0.05 SOL) |
+| `BACKSY_DAILY_DRIPS` | optional, default 60 |
+
+Leave `BACKSY_FAUCET_KEY` unset and the button simply never appears.
+
+**That key signs transfers.** It is devnet-only and must never hold real funds.
+
 ## The extension
 
 `ext/` currently points at `http://localhost:8000`. To ship it, change that URL in
