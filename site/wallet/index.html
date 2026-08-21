@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Backsy — on-chain wallet</title>
+<meta name="description" content="Reversible transfers on Solana devnet."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="/styles.css"/>
+<style>
+  .doc{max-width:720px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:18px;
+    padding:22px;margin:0 0 16px}
+  .panel.dark{background:var(--deep);border-color:transparent;color:#fff}
+  .panel.dark .lbl{color:rgba(255,255,255,.66)}
+  .bal{font-size:34px;font-weight:700;letter-spacing:-.03em}
+  .addr{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
+    color:var(--muted);word-break:break-all}
+  .panel.dark .addr{color:rgba(255,255,255,.7)}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .field label{font-size:12.5px;color:var(--muted);font-weight:600}
+  input,select{background:var(--white);border:1px solid var(--line);color:var(--ink);
+    border-radius:11px;padding:11px 13px;font:inherit;width:100%}
+  button.act{background:var(--accent);color:#fff;border:0;border-radius:999px;
+    padding:11px 22px;font:inherit;font-weight:600;cursor:pointer}
+  button.act:disabled{opacity:.45;cursor:default}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);
+    border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border:0}
+  .link{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+    color:var(--muted);word-break:break-all;margin-top:5px}
+  .msg{font-size:14px;padding:11px 14px;border-radius:11px;margin:12px 0 0}
+  .msg.err{background:#FEECEC;color:#B02525}
+  .msg.ok{background:rgba(46,192,139,.14);color:#17795A}
+  .msg.info{background:var(--pale);color:var(--accent)}
+  .muted{color:var(--muted);font-size:14px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/" aria-label="Backsy">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">backsy</span>
+    </a>
+    <nav class="nav-links">
+      <a class="nav-link" href="/#features">Features</a>
+      <a class="nav-link" href="/how-it-works/">How it works</a>
+      <a class="nav-link" href="/security/">Security</a>
+    </nav>
+    <div class="nav-right"><a class="btn-download" href="/app">Demo wallet</a></div>
+  </div>
+</header>
+
+<main class="doc">
+  <p class="eyebrow"><span></span>Solana devnet</p>
+  <h1>On-chain wallet</h1>
+  <p class="lead">This one really moves money: every send, cancel and claim below is a
+  transaction against the Backsy program on devnet. The coins are test coins and worth
+  nothing.</p>
+
+  <!-- wallet -->
+  <div class="panel dark" id="walletPanel">
+    <div class="lbl">Wallet</div>
+    <div id="notConnected">
+      <p class="muted" style="color:rgba(255,255,255,.75);margin:6px 0 16px">
+        Connect a Solana wallet set to <strong>devnet</strong>.</p>
+      <button class="act" id="connectBtn">Connect wallet</button>
+    </div>
+    <div id="connected" class="hidden">
+      <div class="bal" id="balance">—</div>
+      <div class="addr" id="address"></div>
+    </div>
+  </div>
+
+  <!-- claim, only when a link brought us here -->
+  <div class="panel hidden" id="claimPanel">
+    <div class="lbl">Someone sent you this</div>
+    <div class="bal" id="claimAmount">—</div>
+    <div class="addr" id="claimFrom"></div>
+    <p class="muted" id="claimExpiry" style="margin:10px 0 16px"></p>
+    <button class="act" id="claimBtn">Claim into my wallet</button>
+    <div id="claimMsg"></div>
+  </div>
+
+  <!-- send -->
+  <div class="panel" id="sendPanel">
+    <div class="lbl">Send</div>
+    <div class="field" style="margin-top:10px">
+      <label for="amount">Amount in SOL (0.001 to 0.5 while unaudited)</label>
+      <input id="amount" type="number" step="0.001" min="0.001" max="0.5" value="0.01"/>
+    </div>
+    <div class="field">
+      <label for="hold">Take it back until</label>
+      <select id="hold">
+        <option value="3600">1 hour from now</option>
+        <option value="86400" selected>1 day from now</option>
+        <option value="604800">7 days from now</option>
+      </select>
+    </div>
+    <button class="act" id="sendBtn" disabled>Create transfer</button>
+    <div id="sendMsg"></div>
+  </div>
+
+  <!-- in flight -->
+  <div class="panel">
+    <div class="lbl">In flight — yours until claimed</div>
+    <div id="pending" class="muted" style="margin-top:12px">Connect a wallet to see them.</div>
+  </div>
+
+  <p class="note">The claim key travels in the part of the link after the <code>#</code>,
+  which browsers never send to a server. This page holds no keys and no balances: it reads
+  the chain and asks your wallet to sign.</p>
+</main>
+
+<script src="/vendor/web3.min.js"></script>
+<script src="/backsy-chain.js"></script>
+<script src="/wallet/app.js"></script>
+</body>
+</html>
