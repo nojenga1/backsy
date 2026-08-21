@@ -77,6 +77,27 @@ mount is visible immediately.
 
 Load it unpacked: `chrome://extensions` → Developer mode → Load unpacked → pick `ext/`.
 
+## On devnet
+
+The Anchor program in `onchain/` is deployed and working on Solana devnet:
+
+| | |
+|---|---|
+| Program | `BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W` |
+| Explorer | https://explorer.solana.com/address/BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W?cluster=devnet |
+
+Verified against the deployed program, not a simulation: escrowing funds,
+refusing a cancel from anyone but the sender, and refunding the full amount
+plus rent on a real cancel.
+
+**Deploying needs a dedicated RPC endpoint.** The public devnet RPC throttles
+by IP hard enough to stall an upload after a handful of the ~500 write
+transactions a deploy sends -- from a CI runner and from a home connection
+alike. Point `solana config set --url` at a provider endpoint instead.
+
+The web app still runs on the simulated escrow; wiring it to this program is
+the next step.
+
 ## What is real, and what isn't
 
 Real: the state machine, the concurrency guards, the claim links, the expiry.
