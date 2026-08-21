@@ -159,9 +159,10 @@
           await sendTx(B.cancelIx({ sender: pubkey, claimKey: t.claimKey }));
           await refresh();
         } catch (e) {
-          btn.disabled = false;
-          btn.textContent = "Cancel";
           say($("sendMsg"), describe(e), "err");
+          // Refresh regardless: if it failed because the transfer was already
+          // settled, the row should not be sitting there inviting another click.
+          await refresh();
         }
       };
       row.appendChild(left);
@@ -215,6 +216,11 @@
   /** Turn a program error into something a person can act on. */
   function describe(e) {
     const s = String((e && e.message) || e);
+    // Anchor's own codes arrive as bare hex, which means nothing to a person.
+    // 3012 is what a settled transfer looks like: its account is gone.
+    if (/0xbc4|AccountNotInitialized|3012/.test(s))
+      return "That transfer is already settled — claimed, cancelled, or returned to you.";
+    if (/0x0|already in use/.test(s)) return "That claim key is already in use.";
     if (/NotTheSender/.test(s)) return "Only the sender can cancel this transfer.";
     if (/WrongClaimKey/.test(s)) return "This link does not match that transfer.";
     if (/Expired/.test(s)) return "Too late — the transfer has gone back to the sender.";
