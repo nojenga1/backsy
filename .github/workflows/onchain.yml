@@ -70,20 +70,31 @@ jobs:
       # not. Failing steps echo their tail as ::error:: so the reason is
       # readable without one. [:space:] avoids escaping a newline in YAML,
       # which is what broke this file once already.
-      # The program id is committed in the source now, so no syncing: a
-      # generated one would change the program's address on every run.
-      - name: Build
+      # Two different needs, so two builds. The artifact must carry the
+      # committed program id, because that is the address on devnet. The tests
+      # only need the id and the keypair to agree with each other, and the
+      # keypair that matches the real id is not in the repo.
+      - name: Build the deployable program
         run: |
           set -o pipefail
-          build_all() {
-            anchor build --ignore-keys &&
-            anchor keys list &&
-            anchor build --ignore-keys
-          }
-          build_all 2>&1 | tee /tmp/step.log || {
+          anchor build --ignore-keys 2>&1 | tee /tmp/step.log || {
             echo "::error::build: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
             exit 1
           }
+          mkdir -p /tmp/artifact
+          cp target/deploy/backsy.so target/idl/backsy.json target/types/backsy.ts /tmp/artifact/
+          echo "deployable id: $(python3 -c 'import json;print(json.load(open("target/idl/backsy.json"))["address"])')"
+
+      # Now point the source at the keypair this runner happens to hold, so
+      # `anchor test` can deploy to an address it can actually sign for.
+      - name: Rebuild with a throwaway id for the local tests
+        run: |
+          set -o pipefail
+          { anchor keys sync && anchor build --ignore-keys; } 2>&1 | tee /tmp/step.log || {
+            echo "::error::rebuild: $(tail -c 1800 /tmp/step.log | tr '[:space:]' ' ')"
+            exit 1
+          }
+          anchor keys list
 
       - name: Install JS dependencies
         run: |
@@ -145,8 +156,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backsy-program
-          path: |
-            onchain/target/deploy/backsy.so
-            onchain/target/idl/backsy.json
-            onchain/target/types/backsy.ts
+          path: /tmp/artifact
           if-no-files-found: warn
