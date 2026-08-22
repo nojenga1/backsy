@@ -18,6 +18,20 @@ SITE = os.path.normpath(os.path.join(HERE, "site"))
 # .strip(): a value pasted into a dashboard picks up stray whitespace, and a
 # leading tab quietly turns an absolute mount path into a relative one.
 DB = os.environ.get("BACKSY_DB", "").strip() or os.path.join(HERE, "backsy.db")
+
+# Which chain this deployment talks to. Everything downstream reads these,
+# so moving networks is a config change, not an edit in three files.
+CLUSTER = os.environ.get("BACKSY_CLUSTER", "devnet").strip().lower()
+PUBLIC_RPC = {
+    "devnet": "https://api.devnet.solana.com",
+    "mainnet-beta": "https://api.mainnet-beta.solana.com",
+}.get(CLUSTER, "https://api.devnet.solana.com")
+# The browser needs an endpoint it may call directly; the server may use a
+# different, private one.
+BROWSER_RPC = os.environ.get("BACKSY_BROWSER_RPC", "").strip() or PUBLIC_RPC
+PROGRAM_ID = os.environ.get(
+    "BACKSY_PROGRAM_ID", "BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W"
+).strip()
 DB_FROM_ENV = bool(os.environ.get("BACKSY_DB", "").strip())
 STARTED = time.time()
 HOLD_SECONDS = 7 * 24 * 3600
@@ -281,6 +295,13 @@ class H(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         p = urllib.parse.urlparse(self.path)
+        if p.path == "/api/config":
+            return self.reply(200, json.dumps({
+                "cluster": CLUSTER,
+                "rpc": BROWSER_RPC,
+                "programId": PROGRAM_ID,
+                "realMoney": CLUSTER == "mainnet-beta",
+            }))
         if p.path == "/api/faucet":
             if faucet is None:
                 return self.reply(200, json.dumps({"available": False, "reason": "not installed"}))

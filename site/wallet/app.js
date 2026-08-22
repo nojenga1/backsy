@@ -5,11 +5,11 @@
   } = window.solanaWeb3;
   const B = window.BacksyChain;
 
-  const RPC = "https://api.devnet.solana.com";
-  const connection = new Connection(RPC, "confirmed");
   const $ = (id) => document.getElementById(id);
 
-  let pubkey = null; // the connected wallet
+  let connection = null;   // set once the server tells us which chain this is
+  let config = null;
+  let pubkey = null;       // the connected wallet
 
   /* ---------- claim links ---------- */
   // base64url, so the secret survives a URL without percent-encoding.
@@ -280,9 +280,34 @@
   }
 
   /* ---------- boot ---------- */
-  $("connectBtn").onclick = connect;
-  $("sendBtn").onclick = createTransfer;
-  $("faucetBtn").onclick = askForCoins;
+  /** The network is the server's to decide, so nothing here hard-codes it. */
+  async function boot() {
+    config = await fetch("/api/config").then((r) => r.json());
+    connection = new Connection(config.rpc, "confirmed");
+    B.setProgramId(config.programId);
+
+    if (config.realMoney) {
+      // Loud, because everything else on this page reads the same either way.
+      const warn = document.createElement("div");
+      warn.className = "msg err";
+      warn.style.margin = "0 0 18px";
+      warn.textContent =
+        "This is mainnet. The money is real and the program has not been audited — " +
+        "send only what you are willing to lose.";
+      document.querySelector("main").prepend(warn);
+      document.querySelector(".eyebrow").innerHTML = "<span></span>Solana mainnet";
+    }
+
+    $("connectBtn").onclick = connect;
+    $("sendBtn").onclick = createTransfer;
+    $("faucetBtn").onclick = askForCoins;
+
+    handleLink();
+    window.addEventListener("hashchange", handleLink);
+    if (window.solana && window.solana.isPhantom) {
+      window.solana.connect({ onlyIfTrusted: true }).then(connect).catch(() => {});
+    }
+  }
 
   function handleLink() {
     const fromLink = claimKeyFromUrl();
@@ -294,11 +319,7 @@
     say($("claimMsg"), "");
     showClaim(fromLink).catch((e) => say($("claimMsg"), describe(e), "err"));
   }
-  handleLink();
-  // Pasting a link while already here is a fragment navigation: no reload.
-  window.addEventListener("hashchange", handleLink);
-  // Reconnect silently if this site was approved before.
-  if (window.solana && window.solana.isPhantom) {
-    window.solana.connect({ onlyIfTrusted: true }).then(connect).catch(() => {});
-  }
+  boot().catch((e) =>
+    say($("sendMsg"), "Could not reach the server: " + (e.message || e), "err")
+  );
 })();

@@ -40,6 +40,12 @@ class FaucetError(Exception):
     """Something the visitor should be told, in words they can act on."""
 
 
+def _refuse_on_mainnet():
+    """Giving away real money is not a feature. Fail loudly if pointed at it."""
+    if os.environ.get("BACKSY_CLUSTER", "devnet").strip().lower() != "devnet":
+        raise FaucetError("The faucet only runs on devnet.")
+
+
 def _keypair():
     raw = os.environ.get("BACKSY_FAUCET_KEY", "").strip()
     if not raw:
@@ -78,6 +84,7 @@ def _check_quota(conn, address, now):
 
 def drip(conn, address):
     """Send one sip to `address`. Returns the signature."""
+    _refuse_on_mainnet()
     conn.executescript(SCHEMA)
     try:
         dest = Pubkey.from_string(address)
@@ -115,9 +122,10 @@ def status(conn):
     """What the page shows before anyone clicks."""
     conn.executescript(SCHEMA)
     try:
+        _refuse_on_mainnet()
         kp = _keypair()
-    except FaucetError:
-        return {"available": False, "reason": "not configured"}
+    except FaucetError as e:
+        return {"available": False, "reason": str(e)}
     try:
         have = balance(kp.pubkey())
     except FaucetError:

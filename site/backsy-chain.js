@@ -17,7 +17,10 @@
 })(typeof self !== "undefined" ? self : this, function (web3) {
   const { PublicKey, SystemProgram, TransactionInstruction } = web3;
 
-  const PROGRAM_ID = new PublicKey("BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W");
+  // Overridable, because the address differs per network. `setProgramId` is
+  // called once at boot with whatever the server reports.
+  let PROGRAM_ID = new PublicKey("BmMPJRQN6vgGud2Bybcs5EMV99XKpcR2CTpjCJFLAm1W");
+  const setProgramId = (id) => { PROGRAM_ID = new PublicKey(id); };
 
   // From the IDL. Anchor derives these from the instruction name, but they are
   // constants once the program is built, so hard-coding beats shipping a parser.
@@ -158,7 +161,8 @@
    *  names no recipient, only a claim key. The link is the entitlement. */
 
   return {
-    PROGRAM_ID,
+    get PROGRAM_ID() { return PROGRAM_ID; },
+    setProgramId,
     MIN_LAMPORTS,
     MAX_LAMPORTS,
     transferAddress,
